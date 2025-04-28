@@ -21,3 +21,13 @@ export const approveDepositRequest = async (id) => {
         throw error
     }
 }
+
+
+export const rejectDepostRequest = async (id, reason) => {
+    try {
+        const response = await axios.post(`${API.url}/admin/decline-deposit-request`,{  id, reason });
+        return response.data
+    } catch (error) {
+        throw error
+    }
+}
