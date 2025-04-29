@@ -6,6 +6,8 @@ import {
 } from "../Controllers/Admin/AdminController";
 import { toast, ToastContainer } from "react-toastify";
 import { MdCancel } from "react-icons/md";
+import { API } from "../Controllers/Api";
+import Swal from "sweetalert2";
 
 export default function Desposit() {
   const [data, setData] = useState([]);
@@ -13,13 +15,41 @@ export default function Desposit() {
   const [cancelling, setCancelling] = useState(false);
   const [isCancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const [id, setId] = useState("");
+
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewData, setViewData] = useState({});
+
+  const [paymentImage, setPaymentImage] = useState(false);
 
   const approveRequest = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you really want to approve this deposit request?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, approve it!",
+    });
+
+    if (!result.isConfirmed) return;
+
     setApproving(true);
     try {
-      const response = await approveDepositRequest(id);
-      console.log(response);
+      await approveDepositRequest(id);
+      await Swal.fire(
+        "Approved!",
+        "The deposit request has been approved.",
+        "success"
+      );
     } catch (error) {
+      console.error(error);
+      await Swal.fire(
+        "Error!",
+        "There was a problem approving the request.",
+        "error"
+      );
     } finally {
       setApproving(false);
       fetchData();
@@ -30,18 +60,28 @@ export default function Desposit() {
 
   const openCancelPopup = (id) => {
     setCancelOpen(true);
+    setId(id);
   };
 
   const rejectDepost = async () => {
     setCancelling(true);
     try {
-      const response = await rejectDepostRequest();
+      await rejectDepostRequest(id, cancelReason);
+      toast.success("Deposit Rejected !");
+      setCancelOpen(false);
+      setId("");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Internal Server Error !");
     } finally {
       setCancelling(false);
       fetchData();
     }
+  };
+
+  const viewPopup = (item) => {
+    console.log(item);
+    setViewData(item);
+    setViewOpen(true);
   };
 
   const fetchData = async () => {
@@ -55,10 +95,21 @@ export default function Desposit() {
   };
 
   useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 5000);
+   
     fetchData();
+   
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
+
+  
+
   return (
-    <div className="relative">
+    <div className="relative max-w-7xl m-auto">
       <ToastContainer />
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 deposit-table">
@@ -113,26 +164,42 @@ export default function Desposit() {
                     {item.created_at.split("T")[1].split(".")[0]}
                   </td>
                   <td className="px-6 py-1 text-xs">
-                    <button>View</button>
+                    <button
+                      onClick={() => viewPopup(item)}
+                      className="bg-yellow-300 text-gray-900"
+                    >
+                      View
+                    </button>
                     {item.status === "P" ? (
                       <button
                         disabled={approving}
                         onClick={() => approveRequest(item.id)}
+                        className="bg-indigo-500 text-gray-200"
                       >
                         {approving ? "Loading..." : "Approve"}
                       </button>
                     ) : item.status === "R" ? (
-                      <button>Rejected</button>
+                      <button className="bg-red-500 text-gray-200">
+                        Rejected
+                      </button>
                     ) : item.status === "S" ? (
-                      <button style={{ backgroundColor: "green" }}>
+                      <button className="text-gray-100 bg-green-500">
                         Success
                       </button>
                     ) : (
                       <button>Failed</button>
                     )}
-                    <button onClick={() => openCancelPopup(item.id)}>
-                      Cancel
-                    </button>
+                    {item.status === "P" && (
+                      <button
+                        className="bg-gray-800 text-gray-200"
+                        onClick={() => {
+                          openCancelPopup(item.id);
+                          setCancelReason("");
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -143,7 +210,10 @@ export default function Desposit() {
       {isCancelOpen && (
         <div className="fixed z-[999] top-0 left-0 w-screen h-screen flex justify-center pt-20 backdrop-blur-md bg-black/30">
           <MdCancel
-            onClick={() => setCancelOpen(false)}
+            onClick={() => {
+              setCancelOpen(false);
+              setId("");
+            }}
             className="cursor-pointer absolute top-4 right-4"
             size={20}
           />
@@ -157,12 +227,89 @@ export default function Desposit() {
               minLength={4}
             />
             <div className="flex justify-around mt-6">
-              <button onClick={rejectDepost} className="bg-green-500 rounded py-2 w-[45%] font-semibold text-gray-100">
+              <button
+                onClick={rejectDepost}
+                className="bg-green-500 rounded py-2 w-[45%] font-semibold text-gray-100"
+              >
                 SUBMIT
               </button>
-              <button className="bg-red-500 rounded py-2 w-[45%] font-semibold text-gray-100">
-                CENCEL
+              <button
+                onClick={() => {
+                  setCancelOpen(false);
+                  setId("");
+                }}
+                disabled={cancelling}
+                className="bg-red-500 rounded py-2 w-[45%] font-semibold text-gray-100"
+              >
+                {cancelling ? "Processing..." : "CENCEL"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewOpen && (
+        <div className="fixed z-[999] top-0 left-0 w-screen h-screen flex justify-center pt-20 backdrop-blur-md bg-black/30">
+          <MdCancel
+            onClick={() => {
+              setViewOpen(false);
+              setViewData({});
+              setPaymentImage(false);
+            }}
+            className="cursor-pointer absolute top-4 right-4"
+            size={20}
+          />
+
+          <div className="min-w-[500px]   border-2 border-gray-200 rounded-md h-auto p-6 max-h-[40vh] overflow-scroll no-scrollbar bg-gradient-to-l from-gray-600 to-gray-700">
+            <div className="flex justify-between text-gray-200 w-full text-sm font-semibold border-b-[1px] border-gray-600 ">
+              <p>Transection Id :- </p>
+              <p>{viewData.transection_id}</p>
+            </div>
+            <div className="flex justify-between text-gray-200 w-full text-sm font-semibold border-b-[1px] border-gray-600 mt-2">
+              <p>User Id :- </p>
+              <p>{viewData.user_id}</p>
+            </div>
+            <div className="flex justify-between text-gray-200 w-full text-sm font-semibold border-b-[1px] border-gray-600 mt-2">
+              <p>Amount :- </p>
+              <p>{viewData.amount}</p>
+            </div>
+            <div className="flex justify-between text-gray-200 w-full text-sm font-semibold border-b-[1px] border-gray-600 mt-2">
+              <p>Transection Hash :- </p>
+              <p>{viewData.transection_hash}</p>
+            </div>
+            <div className="flex justify-between text-gray-200 w-full text-sm font-semibold border-b-[1px] border-gray-600 mt-2">
+              <p>Status :- </p>
+              <p>
+                {viewData.status === "P"
+                  ? "Pending"
+                  : viewData.status === "R"
+                  ? "Rejected"
+                  : viewData.status === "S"
+                  ? "Success"
+                  : "Failed"}
+              </p>
+            </div>
+            <div className="flex justify-between text-gray-200 w-full text-xs font-semibold border-b-[1px] border-gray-600 mt-2">
+              <p>Reason :- </p>
+              <p>{JSON.parse(viewData.reason)}</p>
+            </div>
+            <div className="flex justify-between text-gray-200 w-full text-xs font-semibold border-b-[1px] border-gray-600 mt-2">
+              <p>Image :- </p>
+              <p
+                className={
+                  paymentImage &&
+                  "absolute top-0 w-screen h-screen overflow-scroll  no-scrollbar bg-black/30 backdrop-blur-md left-0 flex justify-center items-center"
+                }
+              >
+                <img
+                  alt="paytn"
+                  onClick={() => setPaymentImage((pre) => !pre)}
+                  className={`w-32 cursor-pointer ${
+                    paymentImage && "w-[600px]"
+                  }  `}
+                  src={`${API.url}${viewData.image_url}`}
+                />{" "}
+              </p>
             </div>
           </div>
         </div>

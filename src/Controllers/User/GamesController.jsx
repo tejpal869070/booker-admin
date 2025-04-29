@@ -270,3 +270,13 @@ export const GetGameHistoryByType = async (type) => {
     return [];
   }
 };
+
+
+
+export const getAllGames = async () => {
+  const response = await axios.post(`${API.url}/admin/get-games `);
+  return response;
+};
+
+
+ 
