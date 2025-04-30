@@ -63,10 +63,34 @@ export const rejectDepostRequest = async (id, reason) => {
   try {
     const response = await axios.post(
       `${API.url}/admin/decline-deposit-request`,
-      { id, reason }
+      { id, reason },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data", // Necessary for file uploads
+        },
+      }
     );
     return response.data;
   } catch (error) {
     throw error;
   }
 };
+
+export const addNewMatch = async (formData) => { 
+  const response = await axios.post(
+    `${API.url}/admin/add-new-match`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response;
+};
+
+
+export const getAllMatch = async ()=>{
+  const response = await axios.post(`${API.url}/admin/get-all-match `);
+  return response
+}

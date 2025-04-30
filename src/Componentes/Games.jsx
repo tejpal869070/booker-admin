@@ -41,7 +41,7 @@ export default function Games() {
     const fatchGames = async () => {
       try {
         const response = await getAllGames();
-        setData(response?.data);
+        setData(response?.data); 
       } catch (error) {
         window.alert("Somthing Went Wrong !");
       }
