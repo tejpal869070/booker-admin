@@ -76,7 +76,7 @@ export const rejectDepostRequest = async (id, reason) => {
   }
 };
 
-export const addNewMatch = async (formData) => { 
+export const addNewMatch = async (formData) => {
   const response = await axios.post(
     `${API.url}/admin/add-new-match`,
     formData,
@@ -89,8 +89,25 @@ export const addNewMatch = async (formData) => {
   return response;
 };
 
-
-export const getAllMatch = async ()=>{
+export const getAllMatch = async () => {
   const response = await axios.post(`${API.url}/admin/get-all-match `);
-  return response
-}
+  return response;
+};
+
+export const makeMatchLive = async (id, status, betting) => {
+  const response = await axios.post(`${API.url}/admin/change-match-status `, {
+    id,
+    status,
+    can_bet_place: betting,
+  });
+  return response;
+};
+
+export const updateMatchResult = async (match_id, section_id, result) => { 
+  const response = await axios.post(`${API.url}/admin/update-match-results `, {
+    match_id,
+    section_id,
+    result,
+  });
+  return response;
+};

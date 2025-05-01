@@ -5,6 +5,7 @@ import Withdrawals from "../../Componentes/Withdrawals";
 import Games from "../../Componentes/Games";
 import MatchAdd from "../../Componentes/MatchAdd";
 import Matches from "../../Componentes/Matches";
+import EditMatch from "../../Componentes/EditMatch";
 
 export default function InnerSection() {
   const location = useLocation();
@@ -24,7 +25,9 @@ export default function InnerSection() {
     return <div>{<Games />}</div>;
   } else if (paramsData && paramsData.admin === "add-new-match") {
     return <div>{<MatchAdd />}</div>;
-  }else if (paramsData && paramsData.admin === "matches") {
+  } else if (paramsData && paramsData.admin === "matches") {
     return <div>{<Matches />}</div>;
+  }else if (paramsData && paramsData.admin === "edit-match") {
+    return <div>{<EditMatch />}</div>;
   }
 }
