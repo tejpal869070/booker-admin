@@ -1,29 +1,50 @@
 import React, { useState } from "react";
-import { updateMatchResult } from "../Controllers/Admin/AdminController";
+import { updateMatchResult, winLossMatch } from "../Controllers/Admin/AdminController";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
 
-const MatchResultPopup = ({ options, onClose }) => {
-  console.log(options);
+const MatchResultPopup = ({ options, onClose }) => { 
   const [selectedOption, setSelectedOption] = useState("");
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(""); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (inputValue < 0) {
+  
+    if (inputValue < 0 || isNaN(inputValue)) {
       toast.warn("Enter correct RUNS");
       return;
     }
+  
     const match_id = options.id;
     const section_id = selectedOption;
     const result = inputValue;
+  
+    const confirmation = await Swal.fire({
+      title: "Confirm Update",
+      text: `Are you sure you want to update the result to ${result}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, update it!"
+    });
+  
+    if (!confirmation.isConfirmed) {
+      return; // Exit if user cancels
+    }
+  
     try {
       await updateMatchResult(match_id, section_id, result);
+      await winLossMatch(match_id, section_id)
       toast.success("Updated");
-      onclose()
+      setTimeout(() => {
+        onClose();
+      }, 500);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Internal Server Error ");
+      toast.error(error?.response?.data?.message || "Internal Server Error");
     }
   };
+ console.log(options?.sections?.filter(i=> !i?.result))
 
   return (
     <div className="fixed inset-0 z-[999] bg-black bg-opacity-50 flex items-center justify-center">
@@ -49,11 +70,11 @@ const MatchResultPopup = ({ options, onClose }) => {
             onChange={(e) => setSelectedOption(e.target.value)}
           >
             <option value="">-- Select --</option>
-            {options?.sections?.map((opt, idx) => (
+            {options?.sections?.filter(i=> !i?.result)?.map((opt, idx) => (
               <option key={idx} value={opt.id}>
                 {opt.after_over} Over
               </option>
-            ))}
+            ))} 
           </select>
 
           {selectedOption && (

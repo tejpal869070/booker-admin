@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
+  deleteMatch,
+  getAllBets,
   getAllMatch,
   makeMatchLive,
 } from "../Controllers/Admin/AdminController";
@@ -10,12 +12,20 @@ import { Link } from "react-router-dom";
 import { ImBin } from "react-icons/im";
 import Swal from "sweetalert2";
 import MatchResultPopup from "./MactResultPopup";
+import { FaEye } from "react-icons/fa";
+import MatchDataPopup from "./MatchDataPopup";
 
 export default function Matches() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
   const [dropdownOptions, setDropDownOptions] = useState({});
+
+  const [isView, setView] = useState(false);
+  const [viewData, setViewData] = useState({});
+  const [showBets, setShowBets] = useState(false);
+
+  const [betData, setBetData] = useState([]);
 
   // handle match live
   const changeMatchStatus = async (id, status, betting) => {
@@ -38,6 +48,39 @@ export default function Matches() {
       } finally {
         fetchData();
       }
+    }
+  };
+
+  const handleRemoveMatch = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you really want to delete this match?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteMatch(id);
+        Swal.fire("Deleted!", "The match has been deleted.", "success");
+      } catch (error) {
+        Swal.fire("Error", `${error?.response?.data?.message}`, "failed");
+      } finally {
+        fetchData();
+      }
+    }
+  };
+
+  const betsShowFunction = async (id) => {
+    try {
+      const response = await getAllBets(id);
+      setBetData(response.data)
+      setShowBets(true)
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Internal Server Error");
     }
   };
 
@@ -87,8 +130,14 @@ export default function Matches() {
   return (
     <div>
       <ToastContainer />
-      <div class="mt-2">
-        <table class="max-w-7xl mx-auto table-auto">
+      <Link
+        to={{ pathname: "/dashboard", search: "?admin=add-new-match" }}
+        className="px-4 mt-6 inline-block py-2 rounded bg-green-700 font-semibold text-gray-200 mb-4"
+      >
+        Add New Match
+      </Link>
+      <div class="mt-2 max-w-9xl overflow-x-auto mt-4">
+        <table class=" mx-auto table-auto ">
           <thead class="justify-between">
             <tr class="bg-gray-800">
               <th class="px-16 py-2">
@@ -165,7 +214,10 @@ export default function Matches() {
                         Start Betting
                       </button>
                     ) : (
-                      <button className="ml-2 px-2 py-1 bg-red-600 font-semibold text-gray-200 text-xs rounded">
+                      <button
+                        onClick={() => changeMatchStatus(item.id, "UC", "N")}
+                        className="ml-2 px-2 py-1 bg-red-600 font-semibold text-gray-200 text-xs rounded"
+                      >
                         Stop Betting
                       </button>
                     )
@@ -175,7 +227,7 @@ export default function Matches() {
                 </td>
 
                 <td class="px-16 py-4 flex justify-center items-center">
-                  <Link
+                  {/* <Link
                     to={{
                       pathname: "/dashboard",
                       search: `?admin=edit-match&match-id=${item.id}`,
@@ -195,8 +247,19 @@ export default function Matches() {
                         clip-rule="evenodd"
                       />
                     </svg>
-                  </Link>
-                  <ImBin className="cursor-pointer text-red-700" />
+                  </Link> */}
+                  <FaEye
+                    onClick={() => {
+                      setView(true);
+                      setViewData(item);
+                    }}
+                    className="mr-2 cursor-pointer text-indigo-900"
+                    size={18}
+                  />
+                  <ImBin
+                    className="cursor-pointer text-red-700"
+                    onClick={() => handleRemoveMatch(item.id)}
+                  />
                   {item.status === "LIVE" ? (
                     <button
                       onClick={() => changeMatchStatus(item.id, "C", "N")}
@@ -226,6 +289,12 @@ export default function Matches() {
                       UPLOAD RESULTS
                     </button>
                   )}
+                  <button
+                    onClick={() => betsShowFunction(item.id)}
+                    className="ml-2 px-2 py-1 bg-green-600 font-semibold text-gray-200 text-xs rounded"
+                  >
+                    BETS
+                  </button>
                 </td>
               </tr>
             ))}
@@ -241,6 +310,65 @@ export default function Matches() {
             setDropDownOptions([]);
           }}
         />
+      )}
+
+      {isView && (
+        <MatchDataPopup
+          matchData={viewData}
+          onClose={() => {
+            setView(false);
+            setViewData({});
+          }}
+        />
+      )}
+
+      {showBets && (
+        <div className="fixed inset-0 bg-black backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-[90%] max-w-5xl max-h-[80vh] overflow-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Betting Table</h2>
+              <button
+                onClick={() => setShowBets(false)}
+                className="text-red-500 hover:text-red-700 text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <table className="min-w-full border border-gray-300 text-sm">
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="border px-2 py-1">ID</th>
+                  <th className="border px-2 py-1">Match ID</th>
+                  <th className="border px-2 py-1">User ID</th>
+                  <th className="border px-2 py-1">Bet Type</th>
+                  <th className="border px-2 py-1">Bet Value</th>
+                  <th className="border px-2 py-1">Amount</th>
+                  <th className="border px-2 py-1">Win Amount</th>
+                  <th className="border px-2 py-1">Section </th>
+                  <th className="border px-2 py-1">Mobile</th>
+                </tr>
+              </thead>
+              <tbody>
+                {betData &&
+                  betData?.map((entry) => (
+                    <tr key={entry.id} className="hover:bg-gray-100">
+                      <td className="border px-2 py-1">{entry.id}</td>
+                      <td className="border px-2 py-1">{entry.match_id}</td>
+                      <td className="border px-2 py-1">{entry.user_id}</td>
+                      <td className="border px-2 py-1">{entry.bet_type === "L" ? "Last Digit" : "Exect RUNs"}</td>
+                      <td className="border px-2 py-1">{entry.bet_value}</td>
+                      <td className="border px-2 py-1">{entry.amount}</td>
+                      <td className="border px-2 py-1">
+                        {entry.win_amount || "-"}
+                      </td>
+                      <td className="border px-2 py-1">{entry.section}{" "}OVER</td>
+                      <td className="border px-2 py-1">{entry.mobile}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );

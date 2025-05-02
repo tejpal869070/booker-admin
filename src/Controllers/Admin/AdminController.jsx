@@ -103,11 +103,33 @@ export const makeMatchLive = async (id, status, betting) => {
   return response;
 };
 
-export const updateMatchResult = async (match_id, section_id, result) => { 
+export const updateMatchResult = async (match_id, section_id, result) => {
   const response = await axios.post(`${API.url}/admin/update-match-results `, {
     match_id,
     section_id,
     result,
+  });
+  return response;
+};
+
+export const deleteMatch = async (id) => {
+  const response = await axios.post(`${API.url}/admin/delete-match`, {
+    id,
+  });
+  return response;
+};
+
+export const winLossMatch = async (id, section_id) => {
+  const response = await axios.post(`${API.url}/admin/win-loss-match`, {
+    id,
+    section_id,
+  });
+  return response;
+};
+
+export const getAllBets = async (id) => {
+  const response = await axios.post(`${API.url}/admin/get-all-bets`, {
+    id,
   });
   return response;
 };
