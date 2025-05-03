@@ -63,12 +63,7 @@ export const rejectDepostRequest = async (id, reason) => {
   try {
     const response = await axios.post(
       `${API.url}/admin/decline-deposit-request`,
-      { id, reason },
-      {
-        headers: {
-          "Content-Type": "multipart/form-data", // Necessary for file uploads
-        },
-      }
+      { id, reason }
     );
     return response.data;
   } catch (error) {

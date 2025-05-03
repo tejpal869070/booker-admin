@@ -98,15 +98,13 @@ export default function Desposit() {
     const intervalId = setInterval(() => {
       fetchData();
     }, 5000);
-   
+
     fetchData();
-   
+
     return () => {
       clearInterval(intervalId);
     };
   }, []);
-
-  
 
   return (
     <div className="relative max-w-7xl m-auto">
@@ -231,7 +229,7 @@ export default function Desposit() {
                 onClick={rejectDepost}
                 className="bg-green-500 rounded py-2 w-[45%] font-semibold text-gray-100"
               >
-                SUBMIT
+                {cancelling ? "Processing..." : "SUBMIT"}
               </button>
               <button
                 onClick={() => {
@@ -241,7 +239,7 @@ export default function Desposit() {
                 disabled={cancelling}
                 className="bg-red-500 rounded py-2 w-[45%] font-semibold text-gray-100"
               >
-                {cancelling ? "Processing..." : "CENCEL"}
+                CENCEL
               </button>
             </div>
           </div>

@@ -105,7 +105,7 @@ const MatchAdd = () => {
       if (response.ok) {
         toast.success("Match Added Successfully!");
         // Optional: Reload or reset form
-        setTimeout(() => window.location.reload(), 500);
+        // setTimeout(() => window.location.reload(), 500);
       } else {
         throw new Error(result?.message || "Error adding match");
       }
