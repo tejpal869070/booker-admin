@@ -258,7 +258,7 @@ export default function Desposit() {
             size={20}
           />
 
-          <div className="min-w-[500px]   border-2 border-gray-200 rounded-md h-auto p-6 max-h-[40vh] overflow-scroll no-scrollbar bg-gradient-to-l from-gray-600 to-gray-700">
+          <div className="    border-2 border-gray-200 rounded-md h-auto p-6 max-h-[40vh] overflow-scroll no-scrollbar bg-gradient-to-l from-gray-600 to-gray-700">
             <div className="flex justify-between text-gray-200 w-full text-sm font-semibold border-b-[1px] border-gray-600 ">
               <p>Transection Id :- </p>
               <p>{viewData.transection_id}</p>

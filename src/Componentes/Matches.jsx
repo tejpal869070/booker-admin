@@ -77,8 +77,8 @@ export default function Matches() {
   const betsShowFunction = async (id) => {
     try {
       const response = await getAllBets(id);
-      setBetData(response.data)
-      setShowBets(true)
+      setBetData(response.data);
+      setShowBets(true);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Internal Server Error");
     }
@@ -308,6 +308,7 @@ export default function Matches() {
           onClose={() => {
             setShowPopup(false);
             setDropDownOptions([]);
+            fetchData();
           }}
         />
       )}
@@ -318,6 +319,7 @@ export default function Matches() {
           onClose={() => {
             setView(false);
             setViewData({});
+            fetchData();
           }}
         />
       )}
@@ -355,17 +357,39 @@ export default function Matches() {
                       <td className="border px-2 py-1">{entry.id}</td>
                       <td className="border px-2 py-1">{entry.match_id}</td>
                       <td className="border px-2 py-1">{entry.user_id}</td>
-                      <td className="border px-2 py-1">{entry.bet_type === "L" ? "Last Digit" : "Exect RUNs"}</td>
+                      <td className="border px-2 py-1">
+                        {entry.bet_type === "L" ? "Last Digit" : "Exect RUNs"}
+                      </td>
                       <td className="border px-2 py-1">{entry.bet_value}</td>
                       <td className="border px-2 py-1">{entry.amount}</td>
                       <td className="border px-2 py-1">
                         {entry.win_amount || "-"}
                       </td>
-                      <td className="border px-2 py-1">{entry.section}{" "}OVER</td>
+                      <td className="border px-2 py-1">{entry.section} OVER</td>
                       <td className="border px-2 py-1">{entry.mobile}</td>
                     </tr>
                   ))}
               </tbody>
+              <tfoot className="bg-gray-100 font-semibold">
+                <tr>
+                  <td colSpan="5" className="border px-2 py-1 text-right">
+                    Total:
+                  </td>
+                  <td className="border px-2 py-1">
+                    {betData?.reduce(
+                      (acc, curr) => acc + Number(curr.amount || 0),
+                      0
+                    )}
+                  </td>
+                  <td className="border px-2 py-1 text-green-700">
+                    {betData?.reduce(
+                      (acc, curr) => acc + Number(curr.win_amount || 0),
+                      0
+                    )}
+                  </td>
+                  <td colSpan="2" className="border px-2 py-1"></td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>

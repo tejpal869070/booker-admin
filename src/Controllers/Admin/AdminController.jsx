@@ -128,3 +128,11 @@ export const getAllBets = async (id) => {
   });
   return response;
 };
+
+
+
+
+export const getAdminData = async ()=>{
+  const response = await axios.post(`${API.url}/admin/get-admin-data`);
+  return response;
+}

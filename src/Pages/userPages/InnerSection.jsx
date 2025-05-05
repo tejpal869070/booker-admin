@@ -6,6 +6,7 @@ import Games from "../../Componentes/Games";
 import MatchAdd from "../../Componentes/MatchAdd";
 import Matches from "../../Componentes/Matches";
 import EditMatch from "../../Componentes/EditMatch";
+import Dashboard from "../Dashboard";
 
 export default function InnerSection() {
   const location = useLocation();
@@ -27,7 +28,9 @@ export default function InnerSection() {
     return <div>{<MatchAdd />}</div>;
   } else if (paramsData && paramsData.admin === "matches") {
     return <div>{<Matches />}</div>;
-  }else if (paramsData && paramsData.admin === "edit-match") {
+  } else if (paramsData && paramsData.admin === "edit-match") {
     return <div>{<EditMatch />}</div>;
+  } else {
+    return <Dashboard />;
   }
 }
