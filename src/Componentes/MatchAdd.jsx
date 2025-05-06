@@ -220,7 +220,7 @@ const MatchAdd = () => {
           {teams.map((team, teamIndex) => (
             <div
               key={teamIndex}
-              className="mb-6 bg-gradient-to-l from-gray-600 to-gray-700 rounded p-4"
+              className="mb-6 bg-gradient-to-l from-gray-600 to-gray-700 rounded "
             >
               <label className="block text-gray-200 font-medium">
                 Team Name:

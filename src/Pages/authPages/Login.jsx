@@ -12,7 +12,7 @@ import { MdOutlineSecurity } from "react-icons/md";
 
 export default function Login() {
   const [creating, setCreating] = useState(false);
-  const [mobile, setMobile] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,15 +21,16 @@ export default function Login() {
   };
 
   const userData = {
-    mobile: mobile,
+    username: username,
     password: password,
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    console.log("first")
     setCreating(true);
-    if (mobile === "" || mobile.length < 10) {
-      toast.error("Mobile number required");
+    if (username === "") {
+      toast.error("username required");
       setCreating(false);
       return;
     } else if (password.length < 6) {
@@ -38,32 +39,18 @@ export default function Login() {
       return;
     }
     try {
-      const response = await userLogin(userData);
-      if (response.status) {
-        sessionStorage.setItem("token", response.token);
-        sessionStorage.setItem("mobile", response.mobile);
-        toast.success("Login Successfull");
-        setCreating(false);
-        setTimeout(function () {
-          window.location.href = "/home";
-        }, 1000);
-      } else {
-        toast.error("Invalid Credentials");
-        setCreating(false);
-        return;
-      }
-    } catch (error) { 
-      if (
-        error.response &&
-        (error.response.status === 404 || error.response.status === 401)
-      ) {
-        toast.error(`${error.response.data.message}`);
-        setCreating(false);
-        return;
-      }
-
-      toast.error("Server Error !");
+      const response = await userLogin(userData); 
+      sessionStorage.setItem("token", response.token);
+      sessionStorage.setItem("mobile", username);
+      toast.success("Login Successfull");
       setCreating(false);
+      setTimeout(function () {
+        window.location.href = "/dashboard";
+      }, 1000);
+    } catch (error) { 
+      toast.error(error?.response?.data?.message);
+      setCreating(false);
+      return;
     }
   };
 
@@ -74,6 +61,7 @@ export default function Login() {
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${bg1})`,
       }}
     >
+      <ToastContainer />
       <div className="relative py-3   sm:max-w-xl sm:mx-auto">
         {/* <div className="absolute inset-0 backdrop-blur-sm bg-cyan-400  shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6  rounded-3xl"></div> */}
         <div className="relative px-4 py-8 bg-white/30 backdrop-blur-sm shadow-lg  rounded-3xl sm:p-20 animate-fade-right">
@@ -84,7 +72,7 @@ export default function Login() {
                 alt="logo"
                 className="w-40 m-auto"
               />
-              <h1 className="text-xl font-bold text-center">LOGIN</h1>
+              <h1 className="text-xl font-bold text-center">ADMIN LOGIN</h1>
             </div>
             <div className="divide-y divide-gray-200">
               <form onSubmit={handleLogin}>
@@ -98,10 +86,10 @@ export default function Login() {
                       id="Mobile"
                       name="Mobile"
                       type="text"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                       className="peer pl-10 rounded  h-10 w-full border-b-2 border-0 border-gray-300 text-gray-900 focus:border-b-2 focus:border-gray-500 focus:outline-none"
-                      placeholder="Mobile / Email"
+                      placeholder="username"
                     />
                   </div>
                   <div className="relative flex items-center">
@@ -142,25 +130,12 @@ export default function Login() {
                       </span>
                     </button>
                   </div>
-                  <p className="text-sm text-gray-900 font-semibold">
-                    Don't have an account?{" "}
-                    <Link to={"/register"} className="underlined text-blue-500">
-                      Register Now
-                    </Link>
-                  </p>
-                  <Link
-                    to={"/forget-password"}
-                    className="text-sm font-semibold text-red-200 cursor-pointer"
-                  >
-                    Forgot Password ?
-                  </Link>
                 </div>
               </form>
             </div>
           </div>
         </div>
-      </div>
-      <ToastContainer />
+      </div> 
     </div>
   );
 }

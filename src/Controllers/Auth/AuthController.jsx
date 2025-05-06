@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API } from "../Api"; 
+import { API } from "../Api";
 
 var mobile = sessionStorage.getItem("mobile");
 var bearerToken = sessionStorage.getItem("token");
@@ -10,7 +10,7 @@ export const CheckUserExistance = async (formData) => {
       mobile: formData.mobile,
       email: formData.email,
       reffer_by: formData.reffer_by,
-      position : formData.position || "L"
+      position: formData.position || "L",
     };
 
     const response = await axios.post(
@@ -45,17 +45,13 @@ export const userRegistration = async (formData) => {
 };
 
 export const userLogin = async (userData) => {
-  try {
-    const postData = {
-      mobile: userData.mobile,
-      password: userData.password,
-    };
+  const postData = {
+    username: userData.username,
+    password: userData.password,
+  };
 
-    const response = await axios.post(`${API.url}user/login`, postData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await axios.post(`${API.url}/admin/login`, postData);
+  return response.data;
 };
 
 export const SendOtp = async (formData) => {
@@ -71,8 +67,9 @@ export const SendOtp = async (formData) => {
 };
 
 export const CheckToken = async () => {
+  const bearerToken = sessionStorage.getItem("token");
   const postData = {
-    mobile: mobile,
+    username: sessionStorage.getItem("mobile"),
   };
 
   const axiosConfig = {
@@ -80,16 +77,13 @@ export const CheckToken = async () => {
       Authorization: `Bearer ${bearerToken}`,
     },
   };
-  try {
-    const response = await axios.post(
-      `${API.url}user/token-check`,
-      postData,
-      axiosConfig
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+
+  const response = await axios.post(
+    `${API.url}/admin/token-check`,
+    postData,
+    axiosConfig
+  );
+  return response;
 };
 
 export const VerifyOtp = async (formData) => {

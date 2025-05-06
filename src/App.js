@@ -12,15 +12,23 @@ import ForgetPassword from "./Pages/authPages/ForgetPassword";
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/dashboard" element={<Home />} /> 
+      <Routes> 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/otp-verify" element={<OtpVerify />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
 
+        
         <Route
-          path="/home2"
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="/"
           element={
             <ProtectedRoute>
               <Home />

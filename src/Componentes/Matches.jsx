@@ -343,6 +343,7 @@ export default function Matches() {
                   <th className="border px-2 py-1">Match ID</th>
                   <th className="border px-2 py-1">User ID</th>
                   <th className="border px-2 py-1">Bet Type</th>
+                  <th className="border px-2 py-1">Bet Team</th>
                   <th className="border px-2 py-1">Bet Value</th>
                   <th className="border px-2 py-1">Amount</th>
                   <th className="border px-2 py-1">Win Amount</th>
@@ -359,6 +360,9 @@ export default function Matches() {
                       <td className="border px-2 py-1">{entry.user_id}</td>
                       <td className="border px-2 py-1">
                         {entry.bet_type === "L" ? "Last Digit" : "Exect RUNs"}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {entry.team_name}
                       </td>
                       <td className="border px-2 py-1">{entry.bet_value}</td>
                       <td className="border px-2 py-1">{entry.amount}</td>

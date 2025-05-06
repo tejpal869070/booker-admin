@@ -98,11 +98,12 @@ export const makeMatchLive = async (id, status, betting) => {
   return response;
 };
 
-export const updateMatchResult = async (match_id, section_id, result) => {
+export const updateMatchResult = async (match_id, section_id, result, selectedTeam) => {
   const response = await axios.post(`${API.url}/admin/update-match-results `, {
     match_id,
     section_id,
     result,
+    team_name : selectedTeam
   });
   return response;
 };
@@ -114,10 +115,11 @@ export const deleteMatch = async (id) => {
   return response;
 };
 
-export const winLossMatch = async (id, section_id) => {
+export const winLossMatch = async (id, section_id, selectedTeam) => {
   const response = await axios.post(`${API.url}/admin/win-loss-match`, {
     id,
     section_id,
+    team_name : selectedTeam
   });
   return response;
 };
@@ -129,10 +131,16 @@ export const getAllBets = async (id) => {
   return response;
 };
 
-
-
-
-export const getAdminData = async ()=>{
+export const getAdminData = async () => {
   const response = await axios.post(`${API.url}/admin/get-admin-data`);
   return response;
-}
+};
+
+export const adminLogin = async (username, password) => {
+  const response = await axios.post(`${API.url}/admin/login`, {
+    username: username,
+    password: password,
+  });
+
+  return response;
+};

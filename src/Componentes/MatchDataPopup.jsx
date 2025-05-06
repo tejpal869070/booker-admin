@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { API } from "../Controllers/Api";
 
-const MatchDataPopup = ({ matchData, onClose }) => { 
+const MatchDataPopup = ({ matchData, onClose }) => {
+  console.log(matchData);
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white w-full max-w-4xl p-6 rounded-lg shadow-lg overflow-auto max-h-[90vh]">
@@ -28,7 +29,15 @@ const MatchDataPopup = ({ matchData, onClose }) => {
               <td className="border px-4 py-2">
                 {new Date(matchData.match_time).toLocaleString()}
               </td>
-              <td className="border px-4 py-2">{matchData.status === "C" ? "COMPLETED" : matchData.status === "LIVE" ? "LIVE" : matchData.status === "UC" ? "Upcoming" : ""}</td>
+              <td className="border px-4 py-2">
+                {matchData.status === "C"
+                  ? "COMPLETED"
+                  : matchData.status === "LIVE"
+                  ? "LIVE"
+                  : matchData.status === "UC"
+                  ? "Upcoming"
+                  : ""}
+              </td>
               <td className="border px-4 py-2">{matchData.can_place_bet}</td>
             </tr>
           </tbody>
@@ -39,14 +48,22 @@ const MatchDataPopup = ({ matchData, onClose }) => {
           <thead className="bg-gray-100">
             <tr>
               <th className="border px-4 py-2">After Over</th>
-              <th className="border px-4 py-2">Score</th>
+              <th className="border px-4 py-2">Team Score</th>
             </tr>
           </thead>
           <tbody>
             {matchData.sections.map((section) => (
               <tr key={section.id}>
                 <td className="border px-4 py-2">{section.after_over}</td>
-                <td className="border px-4 py-2">{section.result}</td>
+                <td className="border px-4 py-2">
+                  {section.result
+                    ? section.result.map((team, idx) => (
+                        <div key={idx}>
+                          {team.team_name}: {team.score}
+                        </div>
+                      ))
+                    : "No data"}
+                </td>
               </tr>
             ))}
           </tbody>

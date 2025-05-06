@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   updateMatchResult,
   winLossMatch,
@@ -7,7 +7,9 @@ import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 
 const MatchResultPopup = ({ options, onClose }) => {
+  console.log(options);
   const [selectedOption, setSelectedOption] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState(null);
   const [inputValue, setInputValue] = useState("");
 
   const handleSubmit = async (e) => {
@@ -37,9 +39,9 @@ const MatchResultPopup = ({ options, onClose }) => {
     }
 
     try {
-      await updateMatchResult(match_id, section_id, result);
-      await winLossMatch(match_id, section_id);
-      toast.success("Updated !")
+      await updateMatchResult(match_id, section_id, result, selectedTeam);
+      await winLossMatch(match_id, section_id, selectedTeam);
+      toast.success("Updated !");
       setTimeout(() => {
         onClose();
       }, 500);
@@ -47,6 +49,10 @@ const MatchResultPopup = ({ options, onClose }) => {
       toast.error(error?.response?.data?.message || "Internal Server Error");
     }
   };
+
+  useEffect(() => {
+    setSelectedTeam(options.teams[0].team_name);
+  }, [options]);
 
   return (
     <div className="fixed inset-0 z-[999] bg-black bg-opacity-50 flex items-center justify-center">
@@ -63,6 +69,18 @@ const MatchResultPopup = ({ options, onClose }) => {
         </div>
 
         <form onSubmit={handleSubmit}>
+          <label className="block mb-2 text-sm font-medium">Select Team:</label>
+          <select
+            className="w-full p-2 border rounded mb-4"
+            value={selectedTeam}
+            onChange={(e) => setSelectedTeam(e.target.value)}
+          >
+            {options?.teams?.map((i, idx) => (
+              <option key={idx} value={i.id}>
+                {i.team_name}
+              </option>
+            ))}
+          </select>
           <label className="block mb-2 text-sm font-medium">
             Select Option:
           </label>
@@ -72,13 +90,11 @@ const MatchResultPopup = ({ options, onClose }) => {
             onChange={(e) => setSelectedOption(e.target.value)}
           >
             <option value="">-- Select --</option>
-            {options?.sections
-              ?.filter((i) => !i?.result)
-              ?.map((opt, idx) => (
-                <option key={idx} value={opt.id}>
-                  {opt.after_over} Over
-                </option>
-              ))}
+            {options?.sections?.map((opt, idx) => (
+              <option key={idx} value={opt.id}>
+                {opt.after_over} Over
+              </option>
+            ))}
           </select>
 
           {selectedOption && (
